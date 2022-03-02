@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 public class Customer extends UserAbstract implements Transformative {
 	
-	ArrayList<Account> myAccounts;
+	ArrayList<Account> myAccounts; // Maybe LinkedHashMap with <#, Account object> ?
 	private final String fullName;
 	private final String streetAddress;
 	
