@@ -9,40 +9,40 @@ public class Marshal {
 	 * @param fileLocation
 	 * @param e
 	 */
-	public static void serialize(String fileLocation, HashMap<String, UserAbstract> UserMap) {
-		
-		// make new file if file does not exist
+	public static <K, V> void serialize(String fileLocation, HashMap<K, V> UserMap) {
 		
 		try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(fileLocation))) {
+			
+			File myFile = new File(fileLocation);
+			
+			if(!myFile.isFile()) {
+				
+				myFile.createNewFile();
+				System.out.println("NEW FILE CREATED"); // DEBUG
+			
+			}
 			
 			out.writeObject(UserMap);
 			
 		} catch(IOException ex) {
 			
 			ex.printStackTrace();
+			System.out.println("DIDN'T SERIALIZE"); // DEBUG
 			
 		}
 		
 	}
 	
 	@SuppressWarnings("unchecked")
-	public static HashMap<String, UserAbstract> deserialize(String fileLocation) { // CONSIDER throwing ClassNotFound to end program early
+	public static <V extends UserAbstract> HashMap<String, V> deserialize(String fileLocation, Class<V> v) throws Exception {
 		
-		HashMap<String, UserAbstract> UserMap = new HashMap<String, UserAbstract>();
+		HashMap<String, V> UserMap = new HashMap<String, V>();
 		
 		if(new File(fileLocation).isFile()) {
 			
 			try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(fileLocation));) {
 				
-				UserMap = (HashMap<String, UserAbstract>) in.readObject();
-				
-			} catch (IOException ex) {
-				
-				ex.printStackTrace();
-				
-			} catch (ClassNotFoundException ex) {
-				
-				ex.printStackTrace();
+				UserMap = (HashMap<String, V>) in.readObject();
 				
 			}
 			

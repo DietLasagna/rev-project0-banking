@@ -1,5 +1,7 @@
 package bankingapp;
 
+import java.util.Scanner;
+
 public abstract class UserAbstract {
 	
 	/**
@@ -9,15 +11,11 @@ public abstract class UserAbstract {
 	 * Every user can print customer data
 	 */
 	
-	final String username;
-	final String password;
-	
-	public UserAbstract(String user, String pass) {
-		
-		this.username = user;
-		this.password = pass;
+	public UserAbstract() {
 		
 	}
+	
+	abstract void menu(Scanner s);
 	
 	public void printCustomerData(Customer customer) {
 		

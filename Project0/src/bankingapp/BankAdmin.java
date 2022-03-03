@@ -2,10 +2,16 @@ package bankingapp;
 
 import bankingexceptions.AccountStatusChangeException;
 
-public class BankAdmin extends Employee implements Transformative {
+public class BankAdmin extends Employee implements Transformative, java.io.Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1014524170595655849L;
 
 	public BankAdmin(String user, String pass) {
 		super(user, pass);
+		
 	}
 
 	@Override

@@ -1,11 +1,28 @@
 package bankingapp;
 
+import java.util.Scanner;
+
 import bankingexceptions.*;
 
-public class Employee extends UserAbstract {
+public class Employee extends UserAbstract implements java.io.Serializable {
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 4450309457885994468L;
+	private final String username;
+	private final String password;
 
 	public Employee(String user, String pass) {
-		super(user, pass);
+
+		this.username = user;
+		this.password = pass;
+	}
+
+	@Override
+	void menu(Scanner s) {
+		System.out.println("");
+		
 	}
 	
 	public void approveAccount(Account account) {
@@ -29,6 +46,14 @@ public class Employee extends UserAbstract {
 			
 		}
 		
+	}
+
+	public String getUsername() {
+		return username;
+	}
+
+	public String getPassword() {
+		return password;
 	}
 
 }
