@@ -18,7 +18,7 @@ public class Marshal {
 			if(!myFile.isFile()) {
 				
 				myFile.createNewFile();
-				System.out.println("NEW FILE CREATED"); // DEBUG
+//				System.out.println("NEW FILE CREATED"); // DEBUG
 			
 			}
 			

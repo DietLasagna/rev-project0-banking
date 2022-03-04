@@ -1,32 +1,27 @@
 package bankingapp;
 
-import java.util.LinkedHashSet;
+import java.io.Serializable;
+
+//import java.util.LinkedHashSet;
 import bankingexceptions.*;
 
-public class Account {
+public class Account implements Serializable {
 	
 	/**
-	 * Accounts have four properties:
-	 *  ID number (automatically assigned in constructor)
-	 *  isJoint (false = single, true = joint account)
+	 * 	isJoint (false = single, true = joint account)
 	 *  Status (0 Open, 1 Approved, 2 Denied)
 	 *  Balance (double >= 0.00)
 	 */
-	
-	final private short accountNumber;
+	private static final long serialVersionUID = 6741064967516562360L;
 	final private boolean isJoint;
 	private byte status;
 	private double balance;
-	public static LinkedHashSet<Account> allAccounts; // populate from deserialize
 	
 	public Account(boolean isJoint) {
 		
-		this.accountNumber = (short) (1000 + allAccounts.size());
 		this.isJoint = isJoint;
 		this.status = (byte) 0;
 		this.setBalance(0.00);
-		
-		allAccounts.add(this);
 		
 	}
 
@@ -45,6 +40,12 @@ public class Account {
 		if(this.status < statusUpdate) {
 			
 			this.status = statusUpdate;
+			
+			if(statusUpdate == 1) {
+				
+				this.setBalance(0.00);
+				
+			}
 			
 		} else {
 			
@@ -73,10 +74,6 @@ public class Account {
 
 	public void setBalance(double balance) {
 		this.balance = balance;
-	}
-
-	public short getAccountNumber() {
-		return accountNumber;
 	}
 
 	public boolean isJoint() {

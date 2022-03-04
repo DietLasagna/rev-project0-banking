@@ -24,18 +24,19 @@ public abstract class UserAbstract {
 		System.out.println("Accounts: " + customer.myAccounts.size());
 		System.out.println("----------------------------------------");
 		
-		for(Account a : customer.myAccounts) {
+		for(int i = 0; i < customer.myAccounts.size(); i++) {
 			
-			System.out.print(a.getAccountNumber() + " ");
-			if(a.isJoint()) {
+			System.out.print(Integer.toString(i + 1) + " - ");
+			if(customer.myAccounts.get(i).isJoint()) {
 				System.out.print("~JOINT~ ");
 			}
-			switch(a.getStatus()) {
+			switch(customer.myAccounts.get(i).getStatus()) {
 			case 0:
 				System.out.print("[OPEN APPLICATION]");
 				break;
 			case 1:
-				System.out.print("Balance: " + a.getBalance());
+				System.out.print("Balance: " + String.format("%.2f",
+						customer.myAccounts.get(i).getBalance()));
 				break;
 			case 2:
 				System.out.print("[DENIED: ACCOUNT CLOSED]");
@@ -46,6 +47,8 @@ public abstract class UserAbstract {
 			System.out.println();
 			
 		}
+		
+		System.out.println("----------------------------------------");
 		
 	}
 
