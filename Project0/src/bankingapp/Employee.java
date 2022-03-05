@@ -1,14 +1,29 @@
+/**
+ * Employee.java
+ * 
+ * Version 0.5
+ * 
+ * Mar 04, 2022
+ * 
+ * Apache-2.0 License 
+ */
 package bankingapp;
 
 import java.util.Scanner;
 
 import bankingexceptions.*;
 
+/**
+ * The Employee Class provides data and menus specific to bank employee users. Employees 
+ * can view any customer's personal data, and approve or deny open applications for accounts.
+ * 
+ * @version 0.5 04 Mar 2022
+ * 
+ * @author Michael Adams
+ *
+ */
 public class Employee extends UserAbstract implements java.io.Serializable {
 	
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 4450309457885994468L;
 	private final String username;
 	private final String password;
@@ -22,73 +37,120 @@ public class Employee extends UserAbstract implements java.io.Serializable {
 	@Override
 	void menu(Scanner s) {
 		
+		/** Stores Customer username when selecting who to view */
 		String userInput = "";
-		String inputOptions = "";
+		/** The Customer currently being viewed */
 		Customer currentCustomer;
+		/** Controls looping back to menu until user logs off */
+		boolean isNotDone = true;
 		
-		// List all customers
-		BankingApplication.CustomerMap.forEach((k,v) -> System.out.println(k + "\t | "
-				+ v.getFullName() + "\t - Accounts: " + v.myAccounts.size()));
-		
-		System.out.println();
-		userInput = BankingApplication.readUserInput(s,
-				"Type customer username to view accounts, or 0 to logout").trim();
-		
-		if(userInput.equalsIgnoreCase("0")) {
-
-			System.out.println("Logged out.");
-			return;
+		do {
 			
-		} else if (BankingApplication.CustomerMap.containsKey(userInput)) {
+			// List all customers
+			BankingApplication.CustomerMap.forEach((k,v) -> System.out.println(k + "\t | "
+					+ v.getFullName() + "\t - Accounts: " + v.myAccounts.size()
+					+ " |\t " + v.countOpenAccounts() + " [OPEN]"));
+			System.out.println();
 			
-			currentCustomer = BankingApplication.CustomerMap.get(userInput);
-			printCustomerData(currentCustomer);
-			System.out.println("\n"
-					+ "1 - Approve a new account\n"
-					+ "0 - Back\n"
-					);
+			userInput = BankingApplication.readUserInput(s,
+					"Type customer username to view accounts,"
+					+ " or 0 to logout").trim().toLowerCase();
 			
-			switch(BankingApplication.promptUser(s, "10")) {
-			
-			// Approve an account
-			case "1":
-				// Select account
-				if(currentCustomer.myAccounts.size() < 1) {
-					
-					System.out.println("This customer has no accounts.");
-					
-				} else {
-					
-					System.out.println("Please select account to approve:");
-					// prompt based on number of accounts in myAccounts
-					for(int i = 0; i < currentCustomer.myAccounts.size(); i++) {
-						inputOptions = inputOptions.concat(Integer.toString(i + 1));
+			if(userInput.equalsIgnoreCase("0")) {
+	
+				System.out.println("Logged out.");
+				isNotDone = false;
+				
+			} else if (BankingApplication.CustomerMap.containsKey(userInput)) {
+				
+				currentCustomer = BankingApplication.CustomerMap.get(userInput);
+				printCustomerData(currentCustomer);
+				System.out.println("\n"
+						+ "1 - Approve a new account\n"
+						+ "2 - Deny a new account\n"
+						+ "3 - See Account activity\n"
+						+ "0 - Back\n"
+						);
+				
+				switch(BankingApplication.promptUser(s, "1230")) {
+				
+				// Approve an Open Account
+				case "1":
+					if(currentCustomer.countOpenAccounts() < 1) {
+						
+						System.out.println("This customer has no open applications.");
+						
+					} else {
+						
+						System.out.println("Please select account to approve:");
+	
+						approveAccount(currentCustomer.myAccounts.get(Integer
+								.parseInt(BankingApplication.promptUser(s,
+								generateNumbers(currentCustomer.myAccounts.size()))) - 1));
+						
 					}
-
-					approveAccount(currentCustomer.myAccounts.get(Integer
-							.parseInt(BankingApplication.promptUser(s, inputOptions)) - 1));
+					
+					break;
+					
+				// Deny an Open Account
+				case "2":
+					if(currentCustomer.countOpenAccounts() < 1) {
+						
+						System.out.println("This customer has no open applications.");
+						
+					} else {
+						
+						System.out.println("Please select account to approve:");
+	
+						closeAccount(currentCustomer.myAccounts.get(Integer
+								.parseInt(BankingApplication.promptUser(s,
+								generateNumbers(currentCustomer.myAccounts.size()))) - 1));
+						
+					}
+					
+					break;
+					
+				// See Account activity
+				case "3":
+					if(currentCustomer.countAcceptedAccounts() < 1) {
+						
+						System.out.println("This customer has no applicable accounts.");
+						
+					} else {
+						
+						System.out.println("Please select account");
+						currentCustomer.myAccounts.get(Integer.parseInt(
+								BankingApplication.promptUser(s,
+								generateNumbers(currentCustomer.myAccounts.size()))) - 1)
+								.printEventLog();
+					
+					}
+					
+					break;
+					
+				default:
+				case "0":
+					// Loop back to top of menu
 					
 				}
 				
-				break;
 				
-			default:
-			case "0":
-				// back
+			} else {
+				
+				System.out.println("Invalid input.");
 				
 			}
-			
-			
-		} else {
-			
-			System.out.println("Invalid input.");
-			
-		}
 		
-		menu(s);
+		} while(isNotDone);
+		
+		/** Reaching this point means user is ending session (logged out) */
 		
 	}
 	
+	/**
+	 * Set Account Status to "Approved". This enables users to change the balance.
+	 * @param account Account object to change
+	 */
 	public void approveAccount(Account account) {
 		
 		if(account.getStatus() == 0) {
@@ -111,13 +173,52 @@ public class Employee extends UserAbstract implements java.io.Serializable {
 		}
 		
 	}
-
+	
+	/**
+	 * Set Account Status to "Closed". This disables user from changing the balance.
+	 * @param account Account object to change
+	 */
+	public void closeAccount(Account account) {
+		
+		if(account.getStatus() == 0) {
+			
+			try {
+				
+				account.setStatus((byte)2);
+				System.out.println("Account is closed.");
+				
+			} catch(AccountStatusChangeException e) {
+				
+				System.out.println(e.getMessage());
+				
+			}
+			
+		} else {
+			
+			System.out.println("Error: permissions not set to close this account.");
+			
+		}
+		
+	}
+	
+	/**
+	 * Getter for Employee "username"
+	 * @return String username
+	 */
 	String getUsername() {
+		
 		return username;
+		
 	}
 
+	/**
+	 * Getter for Employee "password"
+	 * @return String password
+	 */
 	String getPassword() {
+		
 		return password;
+		
 	}
 
 }

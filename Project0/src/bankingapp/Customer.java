@@ -1,123 +1,176 @@
+/**
+ * Customer.java
+ * 
+ * Version 0.5
+ * 
+ * Mar 04, 2022
+ * 
+ * Apache-2.0 License 
+ */
 package bankingapp;
 
 import java.util.ArrayList;
 import java.util.Scanner;
 
-
+/**
+ * The Customer Class provides data and menus specific to customer users, including 
+ * a collection of the customer's accounts. Customers can view their own personal data, 
+ * modify their own account balances, and apply to open a new account.
+ * 
+ * @version 0.5 04 Mar 2022
+ * 
+ * @author Michael Adams
+ *
+ */
 public class Customer extends UserAbstract implements Transformative, java.io.Serializable {
 	
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 6471777691115479433L;
-	ArrayList<Account> myAccounts; // Maybe LinkedHashMap with <#, Account object> ?
 	private final String username;
 	private final String password;
 	private final String fullName;
 	private final String streetAddress;
+	/** Mutable collection of Customer's Accounts */
+	ArrayList<Account> myAccounts;
 	
 
 	public Customer(String user, String pass, String name, String addr) {
 
 		this.username = user;
 		this.password = pass;
-		myAccounts = new ArrayList<Account>();
 		this.fullName = name;
 		this.streetAddress = addr;
+		this.myAccounts = new ArrayList<Account>();
 		
 	}
-
+	
+	
 	@Override
 	void menu(Scanner s) {
 		
-		String inputOptions = "";
+		/** Controls looping back to menu until user logs off */
+		boolean isNotDone = true;
 		
 		System.out.println("\nHello, " + fullName + "!");
-		printCustomerData(this);
-		System.out.println("\nWhat would you like to do today?\n"
-				+ "1 - Open a new account\n"
-				+ "2 - Make a withdrawal\n"
-				+ "3 - Make a deposit\n"
-				+ "4 - Transfer funds between accounts\n"
-				+ "0 - Log out\n"
-				);
-		switch(BankingApplication.promptUser(s, "12340")) {
 		
-		// Open new account
-		case "1":
-			if(myAccounts.size() < 9) {
-				
-				System.out.println("Is this new account a joint account?");
-				openAccount(BankingApplication.promptUser(s, "yn") == "y");
-				System.out.println("Your application was sent!");
-				
-			} else {
-				
-				System.out.println("You have reached your allowed limit of accounts.");
-				
-			}
-			break;
+		do {
 			
-		// Make a withdrawal
-		case "2":
-			if(countAcceptedAccounts() < 1) {
-				System.out.println("You do not have any accounts!");
-			} else {
-				System.out.println("Please select account:");
-				// prompt based on number of accounts in myAccounts
-				for(int i = 0; i < myAccounts.size(); i++) {
-					inputOptions = inputOptions.concat(Integer.toString(i + 1));
+			System.out.println();
+			printCustomerData(this);
+			System.out.println("\nWhat would you like to do today?\n"
+					+ "1 - Open a new account\n"
+					+ "2 - Make a withdrawal\n"
+					+ "3 - Make a deposit\n"
+					+ "4 - Transfer funds between accounts\n"
+					+ "5 - See Account activity\n"
+					+ "0 - Log out\n"
+					);
+			
+			switch(BankingApplication.promptUser(s, "123450")) {
+			
+			// Open new account
+			case "1":
+				if(myAccounts.size() < 8) {
+					
+					System.out.println("Is this new account a joint account?");
+					openAccount(BankingApplication.promptUser(s, "yn") == "y");
+					System.out.println("Your application was sent!");
+					
+				} else {
+					
+					System.out.println("You have reached your allowed limit of accounts.");
+					
 				}
 				
-				withdraw(myAccounts.get(Integer.parseInt(BankingApplication.promptUser(s, inputOptions)) - 1),
-						BankingApplication.readUserAmount(s));
-			}
-			break;
-			
-		// Make a deposit
-		case "3":
-			if(countAcceptedAccounts() < 1) {
-				System.out.println("You do not have any accounts!");
-			} else {
-				System.out.println("Please select account");
-				// prompt based on number of accounts in myAccounts
-				for(int i = 0; i < myAccounts.size(); i++) {
-					inputOptions = inputOptions.concat(Integer.toString(i + 1));
+				break;
+				
+			// Make a withdrawal
+			case "2":
+				if(countAcceptedAccounts() < 1) {
+					
+					System.out.println("You do not have any accounts!");
+				
+				} else {
+					
+					System.out.println("Please select account:");
+	
+					/** Make withdrawal based on user selected account and amount*/
+					withdraw(myAccounts.get(Integer.parseInt(
+							BankingApplication.promptUser(s,
+									generateNumbers(myAccounts.size()))) - 1),
+							BankingApplication.readUserAmount(s));
+					
 				}
 				
-				deposit(myAccounts.get(Integer.parseInt(BankingApplication.promptUser(s, inputOptions)) - 1),
-						BankingApplication.readUserAmount(s));
-			}
-			break;
-		
-		// Transfer between accounts
-		case "4":
-			if(countAcceptedAccounts() < 2) {
-				System.out.println("You do not have enough accounts!");
-			} else {
-				System.out.println("Please select account to transfer from, then an account to transfer to:");
-				// prompt based on number of accounts in myAccounts
-				for(int i = 0; i < myAccounts.size(); i++) {			// NEED to account for more than 9 accounts
-					inputOptions = inputOptions.concat(Integer.toString(i + 1));
+				break;
+				
+			// Make a deposit
+			case "3":
+				if(countAcceptedAccounts() < 1) {
+					
+					System.out.println("You do not have any accounts!");
+					
+				} else {
+					
+					System.out.println("Please select account");
+					
+					/** Make deposit based on user selected account and amount*/
+					deposit(myAccounts.get(Integer.parseInt(
+							BankingApplication.promptUser(s,
+									generateNumbers(myAccounts.size()))) - 1),
+							BankingApplication.readUserAmount(s));
+					
+				}
+				break;
+			
+			// Transfer between Accounts
+			case "4":
+				if(countAcceptedAccounts() < 2) {
+					
+					System.out.println("You do not have enough accounts!");
+					
+				} else {
+					
+					System.out.println("Please select account to transfer from,"
+							+ " then an account to transfer to:");
+					
+					/** Make transfer based on user selected accounts and amount*/
+					transfer(myAccounts.get(Integer.parseInt(BankingApplication.promptUser(s,
+									generateNumbers(myAccounts.size()))) - 1),
+							myAccounts.get(Integer.parseInt(BankingApplication.promptUser(s,
+									generateNumbers(myAccounts.size()))) - 1),
+							BankingApplication.readUserAmount(s));
+					
 				}
 				
-				transfer(myAccounts.get(Integer.parseInt(BankingApplication.promptUser(s, inputOptions)) - 1),
-						myAccounts.get(Integer.parseInt(BankingApplication.promptUser(s, inputOptions)) - 1),
-						BankingApplication.readUserAmount(s));
+				break;
+				
+			// See Account activity
+			case "5":
+				if(countAcceptedAccounts() < 1) {
+					
+					System.out.println("You do not have any accounts!");
+					
+				} else {
+					
+					System.out.println("Please select account");
+					myAccounts.get(Integer.parseInt(BankingApplication.promptUser(s,
+								generateNumbers(myAccounts.size()))) - 1).printEventLog();
+				
+				}
+				
+				break;
+				
+			// Log out
+			default:
+			case "0":
+				System.out.println("Goodbye!");
+				isNotDone = false;
 				
 			}
-			// 
-			break;
-			
-		// Log out
-		default:
-		case "5":
-			System.out.println("Goodbye!");
-			return;
-		}
 		
-		menu(s);
-//		return;
+		} while(isNotDone);
+		
+		/** Reaching this point means user is ending session (logged out) */
 		
 	}
 	
@@ -127,6 +180,21 @@ public class Customer extends UserAbstract implements Transformative, java.io.Se
 		super.printCustomerData(this); // Customer can only print own data
 		
 	}
+	
+	/**
+	 * Customer files to open a new account; must be approved by the bank before using.
+	 * @param isJoint boolean for if the account type is "Joint Account"
+	 * @return The Account object for the new account
+	 */
+	public Account openAccount(boolean isJoint) {
+		
+		Account myNewAccount = new Account(isJoint);
+		
+		myAccounts.add(myNewAccount);
+		
+		return myNewAccount;
+		
+	}
 
 	@Override
 	public boolean withdraw(Account accountFrom, double withdrawAmount) {
@@ -134,7 +202,7 @@ public class Customer extends UserAbstract implements Transformative, java.io.Se
 		boolean isComplete = false;
 		double accountBalance = accountFrom.getBalance();
 
-		// check if account is approved
+		// Check if Account is Approved
 		if(accountFrom.getStatus() != 1) {
 			
 			System.out.println("Account unavailable.");
@@ -146,6 +214,7 @@ public class Customer extends UserAbstract implements Transformative, java.io.Se
 			
 			accountFrom.setBalance(accountBalance - withdrawAmount);
 			isComplete = true;
+			accountFrom.addEvent("Withdrawal", withdrawAmount);
 			
 		} else {
 			
@@ -162,7 +231,7 @@ public class Customer extends UserAbstract implements Transformative, java.io.Se
 
 		boolean isComplete = false;
 		
-		// check if account is approved
+		// Check if Account is Approved
 		if(accountTo.getStatus() != 1) {
 			
 			System.out.println("Account unavailable.");
@@ -174,6 +243,7 @@ public class Customer extends UserAbstract implements Transformative, java.io.Se
 			
 			accountTo.setBalance(accountTo.getBalance() + depositAmount);
 			isComplete = true;
+			accountTo.addEvent("Deposit", depositAmount);
 			
 		} else {
 			
@@ -186,8 +256,7 @@ public class Customer extends UserAbstract implements Transformative, java.io.Se
 	}
 
 	@Override
-	public boolean transfer(Account accountFrom, Account accountTo,
-						double transferAmount) {
+	public boolean transfer(Account accountFrom, Account accountTo, double transferAmount) {
 
 		boolean isComplete = false;
 		
@@ -196,10 +265,12 @@ public class Customer extends UserAbstract implements Transformative, java.io.Se
 			if(deposit(accountTo, transferAmount)) {
 			
 				isComplete = true;
+				accountFrom.addEvent("Transfer from", transferAmount);
+				accountTo.addEvent("Transfer to", transferAmount);
 			
 			} else {
 				
-				// reverse the action of the withdraw to cancel the transfer
+				// Reverse the action of the withdraw to cancel the transfer
 				deposit(accountFrom, transferAmount);
 				
 			}
@@ -209,18 +280,10 @@ public class Customer extends UserAbstract implements Transformative, java.io.Se
 		
 	}
 	
-//	public String selectAccount() {
-//		
-//		String inputOptions = "";
-//		
-//		for(int i = 1; i <= myAccounts.size(); i++) {			// NEED to account for more than 9 accounts
-//			inputOptions = inputOptions.concat(Integer.toString(i));
-//		}
-//		
-//		return inputOptions;
-//		
-//	}
-	
+	/**
+	 * Utility method to get the number of Customer Accounts which are of Approved status
+	 * @return Number of Approved Accounts
+	 */
 	public byte countAcceptedAccounts() {
 		
 		byte numberOfAcceptedAccounts = 0;
@@ -239,30 +302,66 @@ public class Customer extends UserAbstract implements Transformative, java.io.Se
 		
 	}
 	
-	public Account openAccount(boolean isJoint) {
+	/**
+	 * Utility method to get the number of Customer Accounts which are of Open status
+	 * @return Number of Open Accounts
+	 */
+	public byte countOpenAccounts() {
 		
-		Account myNewAccount = new Account(isJoint);
+		byte numberOfOpenAccounts = 0;
 		
-		myAccounts.add(myNewAccount);
+		for(Account a : myAccounts) {
+			
+			if(a.getStatus() == 0) {
+				
+				numberOfOpenAccounts++;
+				
+			}
+			
+		}
 		
-		return myNewAccount;
+		return numberOfOpenAccounts;
 		
 	}
-
+	
+	/**
+	 * Getter for Customer "fullName"
+	 * @return String fullName
+	 */
 	String getFullName() {
+		
 		return fullName;
+		
 	}
-
+	
+	/**
+	 * Getter for Customer "streetAddress"
+	 * @return String streetAddress
+	 */
 	String getStreetAddress() {
+		
 		return streetAddress;
+		
 	}
-
+	
+	/**
+	 * Getter for Customer "username"
+	 * @return String username
+	 */
 	String getUsername() {
+		
 		return username;
+		
 	}
-
+	
+	/**
+	 * Getter for Customer "password"
+	 * @return String password
+	 */
 	String getPassword() {
+		
 		return password;
+		
 	}
 	
 
