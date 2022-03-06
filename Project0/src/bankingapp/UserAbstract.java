@@ -1,9 +1,9 @@
 /**
  * UserAbstract.java
  * 
- * Version 0.5
+ * Version 0.6
  * 
- * Mar 04, 2022
+ * Mar 05, 2022
  * 
  * Apache-2.0 License 
  */
@@ -14,7 +14,7 @@ import java.util.Scanner;
 /**
  * Abstract class for all user types: Customer, Employee, and BankAdmin.
  * 
- * @version 0.5 04 Mar 2022
+ * @version 0.6 05 Mar 2022
  * 
  * @author Michael Adams
  *
@@ -59,8 +59,9 @@ public abstract class UserAbstract {
 	 * <li> Numbered list of Accounts with status or balance </li></ul>
 	 * @param customer The Customer object to display
 	 */
-	public void printCustomerData(Customer customer) {
+	protected void printCustomerData(Customer customer) {
 		
+		System.out.println();
 		System.out.println(customer.getFullName());
 		System.out.println(customer.getStreetAddress());
 		System.out.println("Accounts: " + customer.myAccounts.size());

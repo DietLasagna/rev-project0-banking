@@ -1,9 +1,9 @@
 /**
  * Employee.java
  * 
- * Version 0.5
+ * Version 0.6
  * 
- * Mar 04, 2022
+ * Mar 05, 2022
  * 
  * Apache-2.0 License 
  */
@@ -17,7 +17,7 @@ import bankingexceptions.*;
  * The Employee Class provides data and menus specific to bank employee users. Employees 
  * can view any customer's personal data, and approve or deny open applications for accounts.
  * 
- * @version 0.5 04 Mar 2022
+ * @version 0.6 05 Mar 2022
  * 
  * @author Michael Adams
  *
@@ -38,18 +38,18 @@ public class Employee extends UserAbstract implements java.io.Serializable {
 	void menu(Scanner s) {
 		
 		/** Stores Customer username when selecting who to view */
-		String userInput = "";
+		String userInput;
 		/** The Customer currently being viewed */
 		Customer currentCustomer;
 		/** Controls looping back to menu until user logs off */
 		boolean isNotDone = true;
+		/** Controls focus on one Customer until tasks are complete */
+		boolean isSameCustomer = true;
 		
 		do {
-			
-			// List all customers
-			BankingApplication.CustomerMap.forEach((k,v) -> System.out.println(k + "\t | "
-					+ v.getFullName() + "\t - Accounts: " + v.myAccounts.size()
-					+ " |\t " + v.countOpenAccounts() + " [OPEN]"));
+
+			System.out.println();
+			printCustomers();
 			System.out.println();
 			
 			userInput = BankingApplication.readUserInput(s,
@@ -64,75 +64,83 @@ public class Employee extends UserAbstract implements java.io.Serializable {
 			} else if (BankingApplication.CustomerMap.containsKey(userInput)) {
 				
 				currentCustomer = BankingApplication.CustomerMap.get(userInput);
-				printCustomerData(currentCustomer);
-				System.out.println("\n"
-						+ "1 - Approve a new account\n"
-						+ "2 - Deny a new account\n"
-						+ "3 - See Account activity\n"
-						+ "0 - Back\n"
-						);
 				
-				switch(BankingApplication.promptUser(s, "1230")) {
+				do {
+					
+					/** Keep focus on this Customer until told otherwise */
+					isSameCustomer = true;
+					
+					printCustomerData(currentCustomer);
+					System.out.println("\n"
+							+ "1 - Approve a new account\n"
+							+ "2 - Deny a new account\n"
+							+ "3 - See Account activity\n"
+							+ "0 - Back\n"
+							);
+					
+					switch(BankingApplication.promptUser(s, "1230")) {
+					
+					// Approve an Open Account
+					case "1":
+						if(currentCustomer.countOpenAccounts() < 1) {
+							
+							System.out.println("This customer has no open applications.");
+							
+						} else {
+							
+							System.out.println("Please select account to approve:");
+		
+							approveAccount(currentCustomer.myAccounts.get(Integer
+									.parseInt(BankingApplication.promptUser(s,
+									generateNumbers(currentCustomer.myAccounts.size()))) - 1));
+							
+						}
+						
+						break;
+						
+					// Deny an Open Account
+					case "2":
+						if(currentCustomer.countOpenAccounts() < 1) {
+							
+							System.out.println("This customer has no open applications.");
+							
+						} else {
+							
+							System.out.println("Please select account to approve:");
+		
+							closeAccount(currentCustomer.myAccounts.get(Integer
+									.parseInt(BankingApplication.promptUser(s,
+									generateNumbers(currentCustomer.myAccounts.size()))) - 1));
+							
+						}
+						
+						break;
+						
+					// See Account activity
+					case "3":
+						if(currentCustomer.countAcceptedAccounts() < 1) {
+							
+							System.out.println("This customer has no applicable accounts.");
+							
+						} else {
+							
+							System.out.println("Please select account");
+							currentCustomer.myAccounts.get(Integer.parseInt(
+									BankingApplication.promptUser(s,
+									generateNumbers(currentCustomer.myAccounts.size()))) - 1)
+									.printEventLog();
+						
+						}
+						
+						break;
+						
+					default:
+					case "0":
+						isSameCustomer = false;
+						
+					}
 				
-				// Approve an Open Account
-				case "1":
-					if(currentCustomer.countOpenAccounts() < 1) {
-						
-						System.out.println("This customer has no open applications.");
-						
-					} else {
-						
-						System.out.println("Please select account to approve:");
-	
-						approveAccount(currentCustomer.myAccounts.get(Integer
-								.parseInt(BankingApplication.promptUser(s,
-								generateNumbers(currentCustomer.myAccounts.size()))) - 1));
-						
-					}
-					
-					break;
-					
-				// Deny an Open Account
-				case "2":
-					if(currentCustomer.countOpenAccounts() < 1) {
-						
-						System.out.println("This customer has no open applications.");
-						
-					} else {
-						
-						System.out.println("Please select account to approve:");
-	
-						closeAccount(currentCustomer.myAccounts.get(Integer
-								.parseInt(BankingApplication.promptUser(s,
-								generateNumbers(currentCustomer.myAccounts.size()))) - 1));
-						
-					}
-					
-					break;
-					
-				// See Account activity
-				case "3":
-					if(currentCustomer.countAcceptedAccounts() < 1) {
-						
-						System.out.println("This customer has no applicable accounts.");
-						
-					} else {
-						
-						System.out.println("Please select account");
-						currentCustomer.myAccounts.get(Integer.parseInt(
-								BankingApplication.promptUser(s,
-								generateNumbers(currentCustomer.myAccounts.size()))) - 1)
-								.printEventLog();
-					
-					}
-					
-					break;
-					
-				default:
-				case "0":
-					// Loop back to top of menu
-					
-				}
+				} while(isSameCustomer);
 				
 				
 			} else {
@@ -148,10 +156,26 @@ public class Employee extends UserAbstract implements java.io.Serializable {
 	}
 	
 	/**
+	 * Prints a standardized list of Customers and Account information:<ul>
+	 * <li>username
+	 * <li>full name
+	 * <li>number of accounts
+	 * <li>number of open account applications.</ul>
+	 */
+	protected void printCustomers() {
+		
+		BankingApplication.CustomerMap.forEach((k,v) -> System.out.println(
+				k + "\t | " + v.getFullName() +
+				"\t ||\t Accounts: " + v.myAccounts.size() +
+				" | " + v.countOpenAccounts() + " [OPEN]"));
+		
+	}
+	
+	/**
 	 * Set Account Status to "Approved". This enables users to change the balance.
 	 * @param account Account object to change
 	 */
-	public void approveAccount(Account account) {
+	protected void approveAccount(Account account) {
 		
 		if(account.getStatus() == 0) {
 			
@@ -159,6 +183,7 @@ public class Employee extends UserAbstract implements java.io.Serializable {
 				
 				account.setStatus((byte)1);
 				System.out.println("Account is approved.");
+				BankingApplication.saveData();
 				
 			} catch(AccountStatusChangeException e) {
 				
@@ -178,7 +203,7 @@ public class Employee extends UserAbstract implements java.io.Serializable {
 	 * Set Account Status to "Closed". This disables user from changing the balance.
 	 * @param account Account object to change
 	 */
-	public void closeAccount(Account account) {
+	protected void closeAccount(Account account) {
 		
 		if(account.getStatus() == 0) {
 			
@@ -186,6 +211,7 @@ public class Employee extends UserAbstract implements java.io.Serializable {
 				
 				account.setStatus((byte)2);
 				System.out.println("Account is closed.");
+				BankingApplication.saveData();
 				
 			} catch(AccountStatusChangeException e) {
 				

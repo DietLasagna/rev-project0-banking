@@ -1,9 +1,9 @@
 /**
  * BankingApplication.java
  * 
- * Version 0.5
+ * Version 0.6
  * 
- * Mar 04, 2022
+ * Mar 05, 2022
  * 
  * Apache-2.0 License 
  */
@@ -16,7 +16,7 @@ import java.util.*;
  * and handles user log in and first time registration. Has several utility methods for
  * reading and verifying user input.
  * 
- * @version 0.5 04 Mar 2022
+ * @version 0.6 05 Mar 2022
  * 
  * @author Michael Adams
  *
@@ -24,14 +24,14 @@ import java.util.*;
 public class BankingApplication {
 	
 	/** Sets whether user will need to register as a new user*/
-	static public boolean isNewUser = true;
+	static private boolean isNewUser = true;
 	/** HashMap of all Customer records: Key is username:String, Value is user:Customer */
-	static public HashMap<String, Customer> CustomerMap;
+	static HashMap<String, Customer> CustomerMap;
 	/** HashMap of all Employee records: Key is username:String, Value is user:Employee */
-	static public HashMap<String, Employee> EmployeeMap;
+	static HashMap<String, Employee> EmployeeMap;
 	/** HashMap of all Bank Administrator records: Key is username:String,
 			Value is user:BankAdmin */
-	static public HashMap<String, BankAdmin> BankAdminMap;
+	static HashMap<String, BankAdmin> BankAdminMap;
 
 	/**
 	 * Executable method of Project0. Parameter is unused.
@@ -52,8 +52,9 @@ public class BankingApplication {
 			
 		} catch (Exception ex) {
 			
-			ex.printStackTrace();
-			System.out.println("DID NOT DESERIALIZE"); // DEBUG
+//			ex.printStackTrace(); // DEBUG
+			System.out.println("\n::\t FAILED TO LOAD DATA \t::");
+			/** Better to crash the application if Maps are not properly initialized */
 			return;
 			
 		}
@@ -65,48 +66,30 @@ public class BankingApplication {
 		try (Scanner s = new Scanner(System.in)) {
 			
 			do {
+
+				System.out.println("\n\n\n\n\n");
+				System.out.println("\t WELCOME TO BANK \t");
 				
 				/** Holds value of user object (Customer|Employee|BankAdmin|null)*/
 				UserAbstract currentUser = loginScreen(s);
 				
-				if(currentUser == null) {
-					
-					return;
-					
-				} else {
+				if(currentUser != null) {
 					
 					/** Passes Scanner to object for user behavior based on Class */
 					currentUser.menu(s);
 				
 				}
 				
-				/**
-				 * Reaching this point means user has successfully logged out of session.
-				 * 
-				 * On session ending, current object states are serialized into files. 
-				 * If a file is expected but not found, a new empty file is created.
-				 */
-				try {
-					
-					Marshal.serialize("./src/CustomerData.ser", CustomerMap);
-					Marshal.serialize("./src/EmployeeData.ser", EmployeeMap);
-					Marshal.serialize("./src/BankAdminData.ser", BankAdminMap);
-					
-				} catch (Exception ex) {
-					
-					ex.printStackTrace();
-					System.out.println("DID NOT DESERIALIZE"); // DEBUG
-					
-				}
+				saveData();
 				
 				System.out.println("\nNew login?");
 			
 			} while(promptUser(s, "yn").equalsIgnoreCase("y"));
 			
 		} catch (Exception ex) {
-		
-			System.out.println("Error. Try again later.");
-			ex.printStackTrace();
+
+//			ex.printStackTrace(); // DEBUG
+			System.out.println("\n::\t SYSTEM: CRITICAL ERROR \t::");
 		
 		}
 		
@@ -128,7 +111,6 @@ public class BankingApplication {
 		/** Controls moving to next step in process */
 		boolean isNotReady = false;
 		
-		System.out.println("\t WELCOME TO BANK \t");
 		System.out.println("Enter Login credentials or register");
 		
 		do {
@@ -200,8 +182,8 @@ public class BankingApplication {
 			case "c":
 				System.out.println("Welcome, new customer! Please fill out this form.");
 				currentUser = new Customer(username, password,
-						readUserInput(s, "Please type full name:"),
-						readUserInput(s, "Please type mailing address:")
+						readUserInput(s, "Please type full name:").trim(),
+						readUserInput(s, "Please type mailing address:").trim()
 						);
 				CustomerMap.put(username, (Customer) currentUser);
 				break;
@@ -220,7 +202,7 @@ public class BankingApplication {
 				
 			default:
 				System.out.println("\t Invalid Login \t");
-				System.out.println("----------------------------------------");
+				System.out.println("----------------------------------------\n");
 				return null;
 				
 			}
@@ -246,7 +228,7 @@ public class BankingApplication {
 			} else {
 				
 			System.out.println("\t Invalid Login \t");
-			System.out.println("----------------------------------------");
+			System.out.println("----------------------------------------\n");
 			return null;
 			
 			}
@@ -273,12 +255,10 @@ public class BankingApplication {
 			
 			userInput = s.nextLine();
 			
-		}
-		
-		catch (Exception ex) {
+		} catch (NoSuchElementException  ex) {
 
-			ex.printStackTrace();
-			readUserInput(s, "Invaild input, please try again:");
+//			ex.printStackTrace(); // DEBUG
+			readUserInput(s, "Invaild input, please try again.");
 			
 		}
 		
@@ -307,18 +287,18 @@ public class BankingApplication {
 				
 			}
 			
-		} catch (Exception ex) {
+		} catch (NoSuchElementException  ex) {
 			
 			ex.printStackTrace();
-			System.out.println("Invalid input");
-			userInput = Math.abs(readUserAmount(s));
+			System.out.println("Invalid input.");
+			userInput = readUserAmount(s);
 			
 		}
 		
 		if(userInput < 0.01d) {
 
-			System.out.println("Invalid input");
-			userInput = Math.abs(readUserAmount(s));
+			System.out.println("Invalid input.");
+			userInput = readUserAmount(s);
 		
 		}
 		
@@ -339,17 +319,44 @@ public class BankingApplication {
 		
 		String userChoice;
 		
-		userChoice = readUserInput(s, "Enter one of (" + options + "):").trim();
+		userChoice = readUserInput(s, "Enter one of ("
+				+ options.replaceAll(".(?=.)", "$0/") + "):").trim();
 		
 		if(!options.contains(userChoice) || userChoice.length() > 1) {
 			
-			System.out.println("Option not available");
+			System.out.println("Option not available.");
 			userChoice = promptUser(s, options);
 			
 		}
 		
 		return userChoice;
 	
+	}
+	
+	/**
+	 * Attempts to write user data to file. Prints error message if unsuccessful; this
+	 * does not mean data is lost, only that the serialized files are not current. 
+	 * Failure to write is resolved upon next successful write.
+	 * <p>If a file is expected but not found, a new file is created before attempting
+	 * to write.
+	 * @see Marshal
+	 */
+	public static void saveData() {
+		
+		try {
+			
+			Marshal.serialize("./src/CustomerData.ser", CustomerMap);
+			Marshal.serialize("./src/EmployeeData.ser", EmployeeMap);
+			Marshal.serialize("./src/BankAdminData.ser", BankAdminMap);
+			
+		} catch (Exception ex) {
+			
+//			ex.printStackTrace(); // DEBUG
+			System.out.println("::\t SYSTEM: SAVE TO FILE FAILED \t::"
+					+ "\n::\t\t TRY AGAIN LATER \t\t::\n");
+			
+		}
+		
 	}
 	
 }

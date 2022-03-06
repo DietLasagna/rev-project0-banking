@@ -1,9 +1,9 @@
 /**
  * Marshal.java
  * 
- * Version 0.5
+ * Version 0.6
  * 
- * Mar 04, 2022
+ * Mar 05, 2022
  * 
  * Apache-2.0 License 
  */
@@ -15,7 +15,7 @@ import java.util.*;
 /**
  * Marshal Class provides serialization capabilities. 
  * 
- * @version 0.5 04 Mar 2022
+ * @version 0.6 05 Mar 2022
  * 
  * @author Michael Adams
  *
@@ -28,8 +28,11 @@ public class Marshal {
 	 * @param <V> Value data type of HashMap
 	 * @param fileLocation Path for file to write
 	 * @param UserMap HashMap to serialize to file
+	 * @throws IOException 
+	 * @throws FileNotFoundException 
 	 */
-	public static <K, V> void serialize(String fileLocation, HashMap<K, V> UserMap) {
+	public static <K, V> void serialize(String fileLocation, HashMap<K, V> UserMap)
+			throws FileNotFoundException, IOException {
 		
 		try (ObjectOutputStream out = new ObjectOutputStream(
 				new FileOutputStream(fileLocation))) {
@@ -44,11 +47,6 @@ public class Marshal {
 			}
 			
 			out.writeObject(UserMap);
-			
-		} catch(IOException ex) {
-			
-			ex.printStackTrace();
-			System.out.println("DIDN'T SERIALIZE"); // DEBUG
 			
 		}
 		

@@ -1,9 +1,9 @@
 /**
  * Account.java
  * 
- * Version 0.5
+ * Version 0.6
  * 
- * Mar 04, 2022
+ * Mar 05, 2022
  * 
  * Apache-2.0 License 
  */
@@ -20,7 +20,7 @@ import bankingexceptions.*;
  * are inaccessible once set to "Denied". Some accounts may be "joint" account, shared
  * between two different Customer users.
  * 
- * @version 0.5 04 Mar 2022
+ * @version 0.6 05 Mar 2022
  * 
  * @author Michael Adams
  *
@@ -61,13 +61,8 @@ public class Account implements Serializable {
 		
 		if(this.status < statusUpdate) {
 			
+			this.setBalance(0.00d);
 			this.status = statusUpdate;
-			
-			if(statusUpdate == 1) {
-				
-				this.setBalance(0.00d);
-				
-			}
 			
 		} else {
 			
@@ -75,17 +70,17 @@ public class Account implements Serializable {
 			
 			case (byte) 0:
 				throw new AccountStatusChangeException(
-						"Cannot revert account to [OPEN]");
+						"Cannot revert account to [OPEN].");
 				// break;
 			
 			case (byte) 1:
 				throw new AccountStatusChangeException(
-						"Account not available for approval");
+						"Account not available for approval.");
 				// break;
 			
 			case (byte) 2:
 				throw new AccountStatusChangeException(
-						"Account already closed");
+						"Account already closed.");
 				// break;
 			
 			}
@@ -109,17 +104,17 @@ public class Account implements Serializable {
 		
 		if(status == 1) {
 			
-			System.out.println("---------------------------------------------");
+			System.out.println("---------------------------------------------------------");
 			
 			for(TransactionEvent e : eventHistory) {
 				
-				System.out.println("| " + e.getEventType() + "\t| " 
-						+ String.format("%.2f", e.getBalanceChange())
-						+ "\t|" + e.getEventTimeStamp() + "\t|");
+				System.out.println("| " + e.getEventType() 
+								+ "\t| " + String.format("%12.2f", e.getBalanceChange())
+								+ "\t|  " + e.getEventTimeStamp() + "\t|");
 				
 			}
 			
-			System.out.println("---------------------------------------------");
+			System.out.println("---------------------------------------------------------");
 		
 		} else {
 			

@@ -1,9 +1,9 @@
 /**
  * Customer.java
  * 
- * Version 0.5
+ * Version 0.6
  * 
- * Mar 04, 2022
+ * Mar 05, 2022
  * 
  * Apache-2.0 License 
  */
@@ -17,7 +17,7 @@ import java.util.Scanner;
  * a collection of the customer's accounts. Customers can view their own personal data, 
  * modify their own account balances, and apply to open a new account.
  * 
- * @version 0.5 04 Mar 2022
+ * @version 0.6 05 Mar 2022
  * 
  * @author Michael Adams
  *
@@ -49,12 +49,19 @@ public class Customer extends UserAbstract implements Transformative, java.io.Se
 		
 		/** Controls looping back to menu until user logs off */
 		boolean isNotDone = true;
+		/** Used to hold second customer account for new joint account */
+		UserAbstract secondLogin;
+		Customer jointCustomer;
+		/** Holds selected accounts for transactions */
+		Account accountTo;
+		Account accountFrom;
+		/** Holds dollar amount for transactions */
+		double transactionAmount;
 		
 		System.out.println("\nHello, " + fullName + "!");
 		
 		do {
 			
-			System.out.println();
 			printCustomerData(this);
 			System.out.println("\nWhat would you like to do today?\n"
 					+ "1 - Open a new account\n"
@@ -72,8 +79,29 @@ public class Customer extends UserAbstract implements Transformative, java.io.Se
 				if(myAccounts.size() < 8) {
 					
 					System.out.println("Is this new account a joint account?");
-					openAccount(BankingApplication.promptUser(s, "yn") == "y");
+					if(BankingApplication.promptUser(s, "yn").equals("y")) {
+						
+						do {
+							
+							System.out.println("Please log in or register with "
+									+ "a second customer account.");
+							secondLogin = BankingApplication.loginScreen(s);
+						
+						} while(!(secondLogin instanceof Customer) &&
+								!(secondLogin.equals(this)));
+						
+						jointCustomer = (Customer) secondLogin;
+						jointCustomer.myAccounts.add(openAccount(true));
+						
+					} else {
+						
+						openAccount(false);
+						
+					}
+					
+//					openAccount(BankingApplication.promptUser(s, "yn") == "y");
 					System.out.println("Your application was sent!");
+					BankingApplication.saveData();
 					
 				} else {
 					
@@ -92,12 +120,17 @@ public class Customer extends UserAbstract implements Transformative, java.io.Se
 				} else {
 					
 					System.out.println("Please select account:");
+					accountFrom = myAccounts.get(Integer.parseInt(
+							BankingApplication.promptUser(s,
+							generateNumbers(myAccounts.size()))) - 1);
+					transactionAmount = BankingApplication.readUserAmount(s);
 	
 					/** Make withdrawal based on user selected account and amount*/
-					withdraw(myAccounts.get(Integer.parseInt(
-							BankingApplication.promptUser(s,
-									generateNumbers(myAccounts.size()))) - 1),
-							BankingApplication.readUserAmount(s));
+					if(withdraw(accountFrom, transactionAmount)) {
+						
+						accountFrom.addEvent("Withdrawal", transactionAmount);
+						
+					}
 					
 				}
 				
@@ -111,13 +144,18 @@ public class Customer extends UserAbstract implements Transformative, java.io.Se
 					
 				} else {
 					
-					System.out.println("Please select account");
+					System.out.println("Please select account:");
+					accountTo = myAccounts.get(Integer.parseInt(
+							BankingApplication.promptUser(s,
+									generateNumbers(myAccounts.size()))) - 1);
+					transactionAmount = BankingApplication.readUserAmount(s);
 					
 					/** Make deposit based on user selected account and amount*/
-					deposit(myAccounts.get(Integer.parseInt(
-							BankingApplication.promptUser(s,
-									generateNumbers(myAccounts.size()))) - 1),
-							BankingApplication.readUserAmount(s));
+					if(deposit(accountTo, transactionAmount)) {
+
+						accountTo.addEvent("Deposit", transactionAmount);
+						
+					}
 					
 				}
 				break;
@@ -130,15 +168,23 @@ public class Customer extends UserAbstract implements Transformative, java.io.Se
 					
 				} else {
 					
-					System.out.println("Please select account to transfer from,"
-							+ " then an account to transfer to:");
+					System.out.println("Please select account to transfer from:");
+					accountFrom = myAccounts.get(Integer.parseInt(
+							BankingApplication.promptUser(s,
+							generateNumbers(myAccounts.size()))) - 1);
+					System.out.println("Please select an account to transfer to:");
+					accountTo = myAccounts.get(Integer.parseInt(
+							BankingApplication.promptUser(s,
+							generateNumbers(myAccounts.size()))) - 1);
+					transactionAmount = BankingApplication.readUserAmount(s);
 					
 					/** Make transfer based on user selected accounts and amount*/
-					transfer(myAccounts.get(Integer.parseInt(BankingApplication.promptUser(s,
-									generateNumbers(myAccounts.size()))) - 1),
-							myAccounts.get(Integer.parseInt(BankingApplication.promptUser(s,
-									generateNumbers(myAccounts.size()))) - 1),
-							BankingApplication.readUserAmount(s));
+					if(transfer(accountFrom, accountTo, transactionAmount)) {
+
+						accountFrom.addEvent("Transfer from", transactionAmount);
+						accountTo.addEvent("Transfer to", transactionAmount);
+						
+					}
 					
 				}
 				
@@ -175,7 +221,7 @@ public class Customer extends UserAbstract implements Transformative, java.io.Se
 	}
 	
 	@Override
-	public void printCustomerData(Customer customer) {
+	protected void printCustomerData(Customer customer) {
 		
 		super.printCustomerData(this); // Customer can only print own data
 		
@@ -186,10 +232,9 @@ public class Customer extends UserAbstract implements Transformative, java.io.Se
 	 * @param isJoint boolean for if the account type is "Joint Account"
 	 * @return The Account object for the new account
 	 */
-	public Account openAccount(boolean isJoint) {
+	protected Account openAccount(boolean isJoint) {
 		
 		Account myNewAccount = new Account(isJoint);
-		
 		myAccounts.add(myNewAccount);
 		
 		return myNewAccount;
@@ -214,7 +259,7 @@ public class Customer extends UserAbstract implements Transformative, java.io.Se
 			
 			accountFrom.setBalance(accountBalance - withdrawAmount);
 			isComplete = true;
-			accountFrom.addEvent("Withdrawal", withdrawAmount);
+			BankingApplication.saveData();
 			
 		} else {
 			
@@ -243,7 +288,7 @@ public class Customer extends UserAbstract implements Transformative, java.io.Se
 			
 			accountTo.setBalance(accountTo.getBalance() + depositAmount);
 			isComplete = true;
-			accountTo.addEvent("Deposit", depositAmount);
+			BankingApplication.saveData();
 			
 		} else {
 			
@@ -265,8 +310,7 @@ public class Customer extends UserAbstract implements Transformative, java.io.Se
 			if(deposit(accountTo, transferAmount)) {
 			
 				isComplete = true;
-				accountFrom.addEvent("Transfer from", transferAmount);
-				accountTo.addEvent("Transfer to", transferAmount);
+				BankingApplication.saveData();
 			
 			} else {
 				

@@ -1,9 +1,9 @@
 /**
  * Transformative.java
  * 
- * Version 0.5
+ * Version 0.6
  * 
- * Mar 04, 2022
+ * Mar 05, 2022
  * 
  * Apache-2.0 License 
  */
@@ -12,12 +12,12 @@ package bankingapp;
 /**
  * Interface for users who may modify account balances.
  * 
- * @version 0.5 04 Mar 2022
+ * @version 0.6 05 Mar 2022
  * 
  * @author Michael Adams
  *
  */
-public interface Transformative {
+interface Transformative {
 	
 	/**
 	 * Decreases account balance by the given amount.
