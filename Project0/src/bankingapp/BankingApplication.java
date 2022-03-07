@@ -1,9 +1,9 @@
 /**
  * BankingApplication.java
  * 
- * Version 0.6
+ * Version 1.0
  * 
- * Mar 05, 2022
+ * Mar 07, 2022
  * 
  * Apache-2.0 License 
  */
@@ -12,25 +12,21 @@ package bankingapp;
 import java.util.*;
 
 /**
- * Executable class for Project0. Contains the collections of objects to be serialized
- * and handles user log in and first time registration. Has several utility methods for
- * reading and verifying user input.
+ * This executable class provides the entry point for Project0. HashMaps for all user 
+ * objects are deserialized and initialized as static, package-private attributes. The
+ * class handles user log in and first time registration, and has several utility methods 
+ * for reading and verifying user input.
  * 
- * @version 0.6 05 Mar 2022
+ * @version 1.0 07 Mar 2022
  * 
  * @author Michael Adams
  *
  */
 public class BankingApplication {
 	
-	/** Sets whether user will need to register as a new user*/
-	static private boolean isNewUser = true;
-	/** HashMap of all Customer records: Key is username:String, Value is user:Customer */
+	/** HashMaps of all user records: Key is username String, Value is user object */
 	static HashMap<String, Customer> CustomerMap;
-	/** HashMap of all Employee records: Key is username:String, Value is user:Employee */
 	static HashMap<String, Employee> EmployeeMap;
-	/** HashMap of all Bank Administrator records: Key is username:String,
-			Value is user:BankAdmin */
 	static HashMap<String, BankAdmin> BankAdminMap;
 
 	/**
@@ -84,7 +80,7 @@ public class BankingApplication {
 				
 				System.out.println("\nNew login?");
 			
-			} while(promptUser(s, "yn").equalsIgnoreCase("y"));
+			} while(promptUser(s, "yn").equals("y"));
 			
 		} catch (Exception ex) {
 
@@ -110,6 +106,8 @@ public class BankingApplication {
 		UserAbstract currentUser;
 		/** Controls moving to next step in process */
 		boolean isNotReady = false;
+		/** Sets whether user will need to register as a new user*/
+		boolean isNewUser = true;
 		
 		System.out.println("Enter Login credentials or register");
 		
@@ -201,6 +199,7 @@ public class BankingApplication {
 				break;
 				
 			default:
+				System.out.println("----------------------------------------\n");
 				System.out.println("\t Invalid Login \t");
 				System.out.println("----------------------------------------\n");
 				return null;
@@ -211,25 +210,26 @@ public class BankingApplication {
 			
 			/** Check each user collection for matching credentials */
 			if(			CustomerMap.containsKey(username) &&
-						CustomerMap.get(username).getPassword() != password) {
+						CustomerMap.get(username).getPassword().equals(password)) {
 				
 				currentUser = CustomerMap.get(username);
 			
 			} else if(	EmployeeMap.containsKey(username) &&
-						EmployeeMap.get(username).getPassword() != password) {
+						EmployeeMap.get(username).getPassword().equals(password)) {
 				
 				currentUser = EmployeeMap.get(username);
 			
 			} else if(	BankAdminMap.containsKey(username) &&
-						BankAdminMap.get(username).getPassword() != password) {
+						BankAdminMap.get(username).getPassword().equals(password)) {
 			
 				currentUser = BankAdminMap.get(username);
 			
 			} else {
-				
-			System.out.println("\t Invalid Login \t");
-			System.out.println("----------------------------------------\n");
-			return null;
+
+				System.out.println("----------------------------------------\n");	
+				System.out.println("\t Invalid Login \t");
+				System.out.println("----------------------------------------\n");
+				return null;
 			
 			}
 			
@@ -258,7 +258,8 @@ public class BankingApplication {
 		} catch (NoSuchElementException  ex) {
 
 //			ex.printStackTrace(); // DEBUG
-			readUserInput(s, "Invaild input, please try again.");
+			System.out.println("Invaild input, please try again.");
+			readUserInput(s, message);
 			
 		}
 		
@@ -289,7 +290,7 @@ public class BankingApplication {
 			
 		} catch (NoSuchElementException  ex) {
 			
-			ex.printStackTrace();
+//			ex.printStackTrace(); // DEBUG
 			System.out.println("Invalid input.");
 			userInput = readUserAmount(s);
 			
@@ -324,7 +325,8 @@ public class BankingApplication {
 		
 		if(!options.contains(userChoice) || userChoice.length() > 1) {
 			
-			System.out.println("Option not available.");
+			System.out.println("Option not available. "
+					+ "Please type selection exactly as it appears on screen.");
 			userChoice = promptUser(s, options);
 			
 		}

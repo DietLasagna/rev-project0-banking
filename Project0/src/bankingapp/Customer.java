@@ -1,9 +1,9 @@
 /**
  * Customer.java
  * 
- * Version 0.6
+ * Version 1.0
  * 
- * Mar 05, 2022
+ * Mar 07, 2022
  * 
  * Apache-2.0 License 
  */
@@ -17,7 +17,7 @@ import java.util.Scanner;
  * a collection of the customer's accounts. Customers can view their own personal data, 
  * modify their own account balances, and apply to open a new account.
  * 
- * @version 0.6 05 Mar 2022
+ * @version 1.0 07 Mar 2022
  * 
  * @author Michael Adams
  *
@@ -91,7 +91,19 @@ public class Customer extends UserAbstract implements Transformative, java.io.Se
 								!(secondLogin.equals(this)));
 						
 						jointCustomer = (Customer) secondLogin;
-						jointCustomer.myAccounts.add(openAccount(true));
+						
+						if(jointCustomer.myAccounts.size() < 8) {
+							
+							jointCustomer.myAccounts.add(openAccount(true));
+						
+						} else {
+							
+							System.out.println("Second customer account has reached "
+									+ "their account limit. \nOpening new account as "
+									+ "an individual account instead.\n");
+							openAccount(false);
+							
+						}
 						
 					} else {
 						
@@ -99,7 +111,6 @@ public class Customer extends UserAbstract implements Transformative, java.io.Se
 						
 					}
 					
-//					openAccount(BankingApplication.promptUser(s, "yn") == "y");
 					System.out.println("Your application was sent!");
 					BankingApplication.saveData();
 					
@@ -115,7 +126,7 @@ public class Customer extends UserAbstract implements Transformative, java.io.Se
 			case "2":
 				if(countAcceptedAccounts() < 1) {
 					
-					System.out.println("You do not have any accounts!");
+					System.out.println("You do not have any available accounts!");
 				
 				} else {
 					
@@ -125,10 +136,10 @@ public class Customer extends UserAbstract implements Transformative, java.io.Se
 							generateNumbers(myAccounts.size()))) - 1);
 					transactionAmount = BankingApplication.readUserAmount(s);
 	
-					/** Make withdrawal based on user selected account and amount*/
 					if(withdraw(accountFrom, transactionAmount)) {
 						
 						accountFrom.addEvent("Withdrawal", transactionAmount);
+						BankingApplication.saveData();
 						
 					}
 					
@@ -140,7 +151,7 @@ public class Customer extends UserAbstract implements Transformative, java.io.Se
 			case "3":
 				if(countAcceptedAccounts() < 1) {
 					
-					System.out.println("You do not have any accounts!");
+					System.out.println("You do not have any available accounts!");
 					
 				} else {
 					
@@ -150,10 +161,10 @@ public class Customer extends UserAbstract implements Transformative, java.io.Se
 									generateNumbers(myAccounts.size()))) - 1);
 					transactionAmount = BankingApplication.readUserAmount(s);
 					
-					/** Make deposit based on user selected account and amount*/
 					if(deposit(accountTo, transactionAmount)) {
 
 						accountTo.addEvent("Deposit", transactionAmount);
+						BankingApplication.saveData();
 						
 					}
 					
@@ -178,11 +189,11 @@ public class Customer extends UserAbstract implements Transformative, java.io.Se
 							generateNumbers(myAccounts.size()))) - 1);
 					transactionAmount = BankingApplication.readUserAmount(s);
 					
-					/** Make transfer based on user selected accounts and amount*/
 					if(transfer(accountFrom, accountTo, transactionAmount)) {
 
 						accountFrom.addEvent("Transfer from", transactionAmount);
 						accountTo.addEvent("Transfer to", transactionAmount);
+						BankingApplication.saveData();
 						
 					}
 					
@@ -194,7 +205,7 @@ public class Customer extends UserAbstract implements Transformative, java.io.Se
 			case "5":
 				if(countAcceptedAccounts() < 1) {
 					
-					System.out.println("You do not have any accounts!");
+					System.out.println("You do not have any available accounts!");
 					
 				} else {
 					
@@ -251,15 +262,11 @@ public class Customer extends UserAbstract implements Transformative, java.io.Se
 		if(accountFrom.getStatus() != 1) {
 			
 			System.out.println("Account unavailable.");
-			return false;
 			
-		}
-		
-		if(withdrawAmount < accountBalance && this.myAccounts.indexOf(accountFrom) > -1) {
+		} else if(withdrawAmount < accountBalance && myAccounts.indexOf(accountFrom) > -1) {
 			
 			accountFrom.setBalance(accountBalance - withdrawAmount);
 			isComplete = true;
-			BankingApplication.saveData();
 			
 		} else {
 			
@@ -282,13 +289,10 @@ public class Customer extends UserAbstract implements Transformative, java.io.Se
 			System.out.println("Account unavailable.");
 			return false;
 			
-		}
-		
-		if(this.myAccounts.indexOf(accountTo) > -1) {
+		} else if(this.myAccounts.indexOf(accountTo) > -1) {
 			
 			accountTo.setBalance(accountTo.getBalance() + depositAmount);
 			isComplete = true;
-			BankingApplication.saveData();
 			
 		} else {
 			
@@ -305,12 +309,15 @@ public class Customer extends UserAbstract implements Transformative, java.io.Se
 
 		boolean isComplete = false;
 		
-		if(withdraw(accountFrom, transferAmount)) {
+		if(accountFrom.equals(accountTo)) {
+			
+			System.out.println("Must select two different accounts. Transaction cancelled.");
+			
+		} else if(withdraw(accountFrom, transferAmount)) {
 			
 			if(deposit(accountTo, transferAmount)) {
 			
 				isComplete = true;
-				BankingApplication.saveData();
 			
 			} else {
 				
@@ -318,6 +325,7 @@ public class Customer extends UserAbstract implements Transformative, java.io.Se
 				deposit(accountFrom, transferAmount);
 				
 			}
+			
 		}
 		
 		return isComplete;

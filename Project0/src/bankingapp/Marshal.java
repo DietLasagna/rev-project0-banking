@@ -1,9 +1,9 @@
 /**
  * Marshal.java
  * 
- * Version 0.6
+ * Version 1.0
  * 
- * Mar 05, 2022
+ * Mar 07, 2022
  * 
  * Apache-2.0 License 
  */
@@ -15,7 +15,7 @@ import java.util.*;
 /**
  * Marshal Class provides serialization capabilities. 
  * 
- * @version 0.6 05 Mar 2022
+ * @version 1.0 07 Mar 2022
  * 
  * @author Michael Adams
  *

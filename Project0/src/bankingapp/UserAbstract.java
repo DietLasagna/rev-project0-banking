@@ -1,9 +1,9 @@
 /**
  * UserAbstract.java
  * 
- * Version 0.6
+ * Version 1.0
  * 
- * Mar 05, 2022
+ * Mar 07, 2022
  * 
  * Apache-2.0 License 
  */
@@ -12,9 +12,9 @@ package bankingapp;
 import java.util.Scanner;
 
 /**
- * Abstract class for all user types: Customer, Employee, and BankAdmin.
+ * Abstract class for all user types.
  * 
- * @version 0.6 05 Mar 2022
+ * @version 1.0 07 Mar 2022
  * 
  * @author Michael Adams
  *
@@ -23,26 +23,6 @@ public abstract class UserAbstract {
 	
 	public UserAbstract() {
 		
-	}
-	
-	/**
-	 * Utility method for creating a String of radix10 numbers from one up to a given limit.
-	 * For example, creates "12345" from Integer 5.
-	 * 
-	 * @param size Largest number in sequence
-	 * @return String of numbers
-	 */
-	public static String generateNumbers(int size) {
-		
-		String numbers = "";
-		
-		for(int i = 0; i <size; i++) {
-			
-			numbers = numbers.concat(Integer.toString(i + 1));
-			
-		}
-		
-		return numbers;
 	}
 	
 	/**
@@ -75,6 +55,10 @@ public abstract class UserAbstract {
 				
 				System.out.print("~JOINT~ ");
 				
+			} else {
+				
+				System.out.print("        ");
+				
 			}
 			
 			switch(customer.myAccounts.get(i).getStatus()) {
@@ -86,7 +70,7 @@ public abstract class UserAbstract {
 				
 			// Status is Approved
 			case 1:
-				System.out.print("Balance: " + String.format("%.2f",
+				System.out.print("Balance: " + String.format("%12.2f",
 						customer.myAccounts.get(i).getBalance()));
 				break;
 				
@@ -106,6 +90,26 @@ public abstract class UserAbstract {
 		
 		System.out.println("----------------------------------------");
 		
+	}
+	
+	/**
+	 * Utility method for creating a String of radix10 numbers from one up to a given limit.
+	 * For example, creates "12345" from Integer 5.
+	 * 
+	 * @param size Largest number in sequence
+	 * @return String of concatenated integers
+	 */
+	public static String generateNumbers(int size) {
+		
+		String numbers = "";
+		
+		for(int i = 0; i <size; i++) {
+			
+			numbers = numbers.concat(Integer.toString(i + 1));
+			
+		}
+		
+		return numbers;
 	}
 
 }

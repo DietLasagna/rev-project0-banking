@@ -1,9 +1,9 @@
 /**
  * BankAdmin.java
  * 
- * Version 0.5
+ * Version 1.0
  * 
- * Mar 04, 2022
+ * Mar 07, 2022
  * 
  * Apache-2.0 License 
  */
@@ -19,7 +19,7 @@ import bankingexceptions.AccountStatusChangeException;
  * applications for accounts as well as cancel approved accounts, and modify any Customer
  * Account balance.
  * 
- * @version 0.5 04 Mar 2022
+ * @version 1.0 07 Mar 2022
  * 
  * @author Michael Adams
  *
@@ -46,9 +46,9 @@ public class BankAdmin extends Employee implements Transformative, java.io.Seria
 		Account accountFrom;
 		/** Holds dollar amount for transactions */
 		double transactionAmount;
-		/** Controls looping back to menu until user logs off */
+		/** Controls looping back to menu until user chooses to log off */
 		boolean isNotDone = true;
-		/** Controls focus on one Customer until tasks are complete */
+		/** Controls focus on one Customer until user chooses to return to main menu */
 		boolean isSameCustomer = true;
 		
 		do {
@@ -81,8 +81,8 @@ public class BankAdmin extends Employee implements Transformative, java.io.Seria
 							+ "2 - Make a withdrawal\n"
 							+ "3 - Make a deposit\n"
 							+ "4 - Transfer funds between accounts\n"
-							+ "5 - Close an account\n"
-							+ "6 - See Account activity\n"
+							+ "5 - Close an account or a new account application\n"
+							+ "6 - See account activity\n"
 							+ "0 - Back\n"
 							);
 					
@@ -101,6 +101,7 @@ public class BankAdmin extends Employee implements Transformative, java.io.Seria
 							approveAccount(currentCustomer.myAccounts.get(Integer
 									.parseInt(BankingApplication.promptUser(s,
 									generateNumbers(currentCustomer.myAccounts.size()))) - 1));
+							BankingApplication.saveData();
 							
 						}
 						
@@ -124,6 +125,7 @@ public class BankAdmin extends Employee implements Transformative, java.io.Seria
 							if(withdraw(accountFrom, transactionAmount)) {
 								
 								accountFrom.addEvent("Withdrawal", transactionAmount);
+								BankingApplication.saveData();
 								
 							}
 						
@@ -148,6 +150,7 @@ public class BankAdmin extends Employee implements Transformative, java.io.Seria
 							if(deposit(accountTo, transactionAmount)) {
 
 								accountTo.addEvent("Deposit", transactionAmount);
+								BankingApplication.saveData();
 								
 							}
 							
@@ -177,6 +180,7 @@ public class BankAdmin extends Employee implements Transformative, java.io.Seria
 
 								accountFrom.addEvent("Transfer from", transactionAmount);
 								accountTo.addEvent("Transfer to", transactionAmount);
+								BankingApplication.saveData();
 								
 							}
 							
@@ -187,9 +191,10 @@ public class BankAdmin extends Employee implements Transformative, java.io.Seria
 					// Close an Account
 					case "5":
 						// Select account
-						if(currentCustomer.myAccounts.size() < 1) {
+						if(		currentCustomer.countOpenAccounts() < 1 ||
+								currentCustomer.countAcceptedAccounts() < 1) {
 							
-							System.out.println("This customer has no accounts.");
+							System.out.println("This customer has no available accounts.");
 							
 						} else {
 							
@@ -198,6 +203,7 @@ public class BankAdmin extends Employee implements Transformative, java.io.Seria
 							closeAccount(currentCustomer.myAccounts.get(Integer.parseInt(
 									BankingApplication.promptUser(s,
 									generateNumbers(currentCustomer.myAccounts.size()))) - 1));
+							BankingApplication.saveData();
 							
 						}
 						
@@ -220,7 +226,8 @@ public class BankAdmin extends Employee implements Transformative, java.io.Seria
 						}
 						
 						break;
-				
+					
+					// Return to customer list
 					default:
 					case "0":
 						isSameCustomer = false;
@@ -251,15 +258,11 @@ public class BankAdmin extends Employee implements Transformative, java.io.Seria
 		if(accountFrom.getStatus() != 1) {
 			
 			System.out.println("Account unavailable.");
-			return false;
 			
-		}
-		
-		if(withdrawAmount < accountBalance) {
+		} else if(withdrawAmount < accountBalance) {
 			
 			accountFrom.setBalance(accountBalance - withdrawAmount);
 			isComplete = true;
-			BankingApplication.saveData();
 			
 		} else {
 			
@@ -285,7 +288,6 @@ public class BankAdmin extends Employee implements Transformative, java.io.Seria
 			
 			accountTo.setBalance(accountTo.getBalance() + depositAmount);
 			isComplete = true;
-			BankingApplication.saveData();
 		
 		}
 		
@@ -307,7 +309,6 @@ public class BankAdmin extends Employee implements Transformative, java.io.Seria
 			if(deposit(accountTo, transferAmount)) {
 			
 				isComplete = true;
-				BankingApplication.saveData();
 			
 			} else {
 				
@@ -331,11 +332,10 @@ public class BankAdmin extends Employee implements Transformative, java.io.Seria
 				
 				account.setStatus((byte)2);
 				System.out.println("Account is closed.");
-				BankingApplication.saveData();
 				
-			} catch(AccountStatusChangeException e) {
+			} catch(AccountStatusChangeException ex) {
 				
-				System.out.println(e.getMessage());
+				System.out.println(ex.getMessage());
 				
 			}
 			

@@ -1,9 +1,9 @@
 /**
  * Employee.java
  * 
- * Version 0.6
+ * Version 1.0
  * 
- * Mar 05, 2022
+ * Mar 07, 2022
  * 
  * Apache-2.0 License 
  */
@@ -17,7 +17,7 @@ import bankingexceptions.*;
  * The Employee Class provides data and menus specific to bank employee users. Employees 
  * can view any customer's personal data, and approve or deny open applications for accounts.
  * 
- * @version 0.6 05 Mar 2022
+ * @version 1.0 07 Mar 2022
  * 
  * @author Michael Adams
  *
@@ -93,6 +93,7 @@ public class Employee extends UserAbstract implements java.io.Serializable {
 							approveAccount(currentCustomer.myAccounts.get(Integer
 									.parseInt(BankingApplication.promptUser(s,
 									generateNumbers(currentCustomer.myAccounts.size()))) - 1));
+							BankingApplication.saveData();
 							
 						}
 						
@@ -111,6 +112,7 @@ public class Employee extends UserAbstract implements java.io.Serializable {
 							closeAccount(currentCustomer.myAccounts.get(Integer
 									.parseInt(BankingApplication.promptUser(s,
 									generateNumbers(currentCustomer.myAccounts.size()))) - 1));
+							BankingApplication.saveData();
 							
 						}
 						
@@ -133,7 +135,8 @@ public class Employee extends UserAbstract implements java.io.Serializable {
 						}
 						
 						break;
-						
+
+					// Return to customer list
 					default:
 					case "0":
 						isSameCustomer = false;
@@ -165,8 +168,9 @@ public class Employee extends UserAbstract implements java.io.Serializable {
 	protected void printCustomers() {
 		
 		BankingApplication.CustomerMap.forEach((k,v) -> System.out.println(
-				k + "\t | " + v.getFullName() +
-				"\t ||\t Accounts: " + v.myAccounts.size() +
+				String.format("%-12s", k) +
+				" | " + String.format("%20s", v.getFullName()) +
+				" || Accounts: " + v.myAccounts.size() +
 				" | " + v.countOpenAccounts() + " [OPEN]"));
 		
 	}
@@ -183,7 +187,6 @@ public class Employee extends UserAbstract implements java.io.Serializable {
 				
 				account.setStatus((byte)1);
 				System.out.println("Account is approved.");
-				BankingApplication.saveData();
 				
 			} catch(AccountStatusChangeException e) {
 				
@@ -211,7 +214,6 @@ public class Employee extends UserAbstract implements java.io.Serializable {
 				
 				account.setStatus((byte)2);
 				System.out.println("Account is closed.");
-				BankingApplication.saveData();
 				
 			} catch(AccountStatusChangeException e) {
 				

@@ -1,9 +1,9 @@
 /**
  * Account.java
  * 
- * Version 0.6
+ * Version 1.0
  * 
- * Mar 05, 2022
+ * Mar 07, 2022
  * 
  * Apache-2.0 License 
  */
@@ -17,10 +17,11 @@ import bankingexceptions.*;
  * Account Class provides structure for Customers' banking accounts. Accounts initialize
  * with a status of "Open", requiring the bank to accept or reject the application before
  * use. Accounts hold a positive, dollar amount balance while status of "Approved"; and
- * are inaccessible once set to "Denied". Some accounts may be "joint" account, shared
- * between two different Customer users.
+ * are inaccessible once set to "Denied". Accounts may be a "joint" account, shared
+ * between two different Customer users. This means the same Account object is affected
+ * by means of either Customer object. 
  * 
- * @version 0.6 05 Mar 2022
+ * @version 1.0 07 Mar 2022
  * 
  * @author Michael Adams
  *
@@ -59,10 +60,10 @@ public class Account implements Serializable {
 			
 		}
 		
-		if(this.status < statusUpdate) {
+		if(status < statusUpdate) {
 			
-			this.setBalance(0.00d);
-			this.status = statusUpdate;
+			setBalance(0.00d);
+			status = statusUpdate;
 			
 		} else {
 			
@@ -100,6 +101,9 @@ public class Account implements Serializable {
 		
 	}
 	
+	/**
+	 * Prints formatted display of all transactions in Account's event history log.
+	 */
 	void printEventLog() {
 		
 		if(status == 1) {

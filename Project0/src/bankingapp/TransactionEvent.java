@@ -1,9 +1,9 @@
 /**
  * TransactionEvent.java
  * 
- * Version 0.5
+ * Version 1.0
  * 
- * Mar 04, 2022
+ * Mar 07, 2022
  * 
  * Apache-2.0 License 
  */
@@ -16,9 +16,9 @@ import java.time.format.DateTimeFormatter;
 /**
  * A Transaction Event records details of a change in balance of an Account.
  * 
- * @version 0.5 04 Mar 2022
+ * @version 1.0 07 Mar 2022
  * 
- * @author Master
+ * @author Michael Adams
  *
  */
 public class TransactionEvent implements Serializable {
