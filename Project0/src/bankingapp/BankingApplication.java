@@ -1,7 +1,7 @@
 /**
  * BankingApplication.java
  * 
- * Version 1.0
+ * Version 1.0.1
  * 
  * Mar 07, 2022
  * 
@@ -17,7 +17,7 @@ import java.util.*;
  * class handles user log in and first time registration, and has several utility methods 
  * for reading and verifying user input.
  * 
- * @version 1.0 07 Mar 2022
+ * @version 1.0.1 07 Mar 2022
  * 
  * @author Michael Adams
  *
@@ -280,7 +280,7 @@ public class BankingApplication {
 		
 		try {
 			
-			userInput = Math.abs(s.nextDouble());
+			userInput = (s.hasNextDouble()) ? Math.abs(s.nextDouble()) : 0.001d;
 			
 			if(s.hasNextLine()) {
 
